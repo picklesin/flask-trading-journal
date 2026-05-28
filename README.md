@@ -1,6 +1,6 @@
 # Trading Journal — Flask Web Application
 
-**Live Demo:** [trading-journal-btms.onrender.com](https://trading-journal-btms.onrender.com)
+
 
 ## Overview
 
