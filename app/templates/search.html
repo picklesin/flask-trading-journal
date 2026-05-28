@@ -1,0 +1,113 @@
+{% for result in results %}
+<tr class="trades" data-href="{{ url_for('main.edit_trades', id=result.id) }}"> 
+    <td class ="first-row" data-label="Symbol">{{ result.stock_sym }}</td>
+
+    <td data-label="Entry">
+        <div class="flex">
+            <span>${{ result.price_entry }}</span>
+            <span>{{ result.entry_date.strftime('%b %d %Y') }}</span>
+        </div>
+    </td>
+
+    <td data-label="Exit">
+        {% if result.exit_date and result.price_exit %}
+        <div class="flex">
+            <span>${{ result.price_exit }}</span>
+            <span>{{ result.exit_date.strftime('%b %d %Y')  }}</span>
+        </div>
+        {% else %}
+            <span class="trade-status">Open</span>
+        {% endif %}
+    </td>
+
+    <td data-label="Qty">{{ result.qty|int }}</td>
+    
+    <td data-label="Status">
+        {% if result.exit_date and result.price_exit %}
+
+            {% set entry_price = result.price_entry %}
+            {% set exit_price = result.price_exit %}
+            {% set trade_type = result.status %}
+
+            {% if trade_type == "long" %}
+                {% if exit_price > entry_price %} 
+                    <div class="flex">
+                        <span>Win</span>
+                        <span>Long</span>
+                    </div>
+                {% elif entry_price > exit_price %}
+                    <div class="flex">
+                        <span>Loss</span>
+                        <span>Long</span>
+                    </div>
+                {% else %}
+                    <span>Breakeven</span>
+                {% endif %}
+            {% else %}  
+                {% if entry_price > exit_price %} 
+                    <div class="flex">
+                        <span>Win</span>
+                        <span>Short</span>
+                    </div>
+                {% elif exit_price > entry_price %} 
+                    <div class="flex">
+                        <span>Loss</span>
+                        <span>Short</span>
+                    </div>
+                {% else %}
+                    <span>Breakeven</span>
+                {% endif %}
+        
+            {% endif %}
+            
+        {% else %}
+        <span>Open</span>
+        {% endif %}
+
+    </td>
+    <td data-label="Action"><a class="delete" href="{{ url_for('main.delete_trade', id=result.id, page=page, q=q) }}"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></a></td>
+    
+</tr>
+
+<ul class="pagination">
+            {% if results.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('main.trades', page=results.prev_num) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f"><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
+                </a></li>
+            {% else %}
+                <li class="page-item disable"><span class="page-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f"><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
+                </span>
+                {% endif %}
+                </li>
+
+            {% for page in results.iter_pages(left_edge=3, right_edge=3) %}
+                {% if page %}
+                    <li class="page-item"><a class="page-link {% if page == results.page %}current{% endif %}" href="{{ url_for('main.trades', page=page, q=q) }}">{{ page }}</a></li>
+                {% else %}
+                    <li class="page-item disabled" id=""><a href="#" class="page-link">...</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if results.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('main.trades', page=results.next_num) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/></svg>
+                    </a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="16px" fill="#1f1f1f"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/></svg>
+                    </span></li>
+                {% endif %}
+
+        </ul>
+
+<script>
+    $(document).on("click", "tbody tr", function() {
+           window.location.href = this.dataset.href;
+            console.log(this.dataset.href);
+        });
+     
+</script>
+
+{% endfor %}
+

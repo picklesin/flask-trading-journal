@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Trade</title>
+
+    <!--Google Font-->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            font-family: 'Roboto', sans-serif; 
+            
+        }
+
+        .container {
+            max-width: 700px;
+            max-height: 100%;
+            padding: 25px 30px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 20px 0 12px 0;
+
+        }
+
+       .user-details .input-box {
+            width: calc(100% / 2 - 20px); 
+            margin-bottom: 15px;
+            
+        }
+
+        
+        .input-box input{
+            width: 100%;
+            min-height: 50px;
+            border-radius: 10px;
+           
+            padding: 15px;
+            font-size: 16px;
+            
+            background-color: #F3F3F5;
+            resize: none;
+
+        }
+        
+
+        .input-box.full-row {
+            width: 100%;
+            
+        }
+
+        .input-box.full-row textarea {
+            width: 100%;
+            min-height: 50px;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #F3F3F5;
+            resize: none;
+        }
+
+
+        .details {
+            padding: 4px;
+            margin: 0;
+            
+        }
+
+
+        .flex-container {
+            display: flex;
+            align-items: center;   
+            width: 100%; 
+        }
+
+    
+       .button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 10px;
+
+       }
+
+       .button input[type="submit"] {
+            height: 45px;
+            width: 100%;
+            background-color: #2463EB;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+    
+
+        input[type="submit"]:hover {
+            background-color: #5281e6;
+        }
+
+        .back-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            border: 1px solid;
+            border-radius: 5px;
+            color: black;
+            padding: 8px 16px;
+            height: 45px;
+        }
+
+        .back-button:hover {
+            background-color: rgb(232, 232, 232);
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+
+
+
+    <div class="container">
+    <div class="title">Trading Journal</div>
+
+        <form method="POST" action="{{url_for('main.edit_trades', id=trade.id, page=page, q=q)}}">
+            <div class="user-details">
+                {{ form.hidden_tag() }}
+
+
+                <div class="input-box">
+                    <span class="details">Symbol *</span>
+                    {{ form.stock_sym() }} 
+                </div>
+
+                <div class="input-box">
+                    <span class="details">Entry Date *</span>
+                    {{ form.entry_date() }}
+                </div>
+
+                <div class="input-box">
+                    <span class=details>Exit Date</span>
+                    {{ form.exit_date() }}
+                </div>
+
+                <div class="input-box">
+                    <span class="details">Entry Price *</span>
+                    {{ form.price_entry() }}
+                </div>
+
+                <div class="input-box">
+                    <span class="details">Exit Price</span>
+                    {{ form.price_exit() }}
+                </div>
+
+                <div class="input-box">
+                    <span class="details">Qty *</span>
+                    {{ form.qty() }} 
+                </div>
+
+                <div class="input-box">
+                    <span class="details">Status *</span>
+                    {{ form.status() }}
+                </div>
+
+
+                <div class="input-box full-row">
+                    <span class="details">Notes</span>
+                    {{ form.entry_journal() }} 
+                </div>
+                    
+                <div class="button">
+                    {{ form.submit() }}
+                    <a class="back-button" href="{{ url_for('main.trades', page=page, q=q) }}">Back</a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+
+
+</body>
+</html>

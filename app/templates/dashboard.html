@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Date adapter for time scales -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <style>
+
+
+        * {
+            padding: 0;
+            margin: 0;
+            font-family: 'Roboto', sans-serif; 
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: white;
+            color: #2463EB;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            border: 1px solid;
+        }
+
+        #sidebar {
+            box-sizing: border-box;
+            height: 100vh;
+            width: 250px;
+            padding: 5px 1px;
+            background-color: white;
+            border-right: 1px solid #42434a;
+
+            position: sticky;
+            top: 0;
+            align-self: start;
+            transition: 300ms ease-in-out;
+            overflow: hidden;
+            text-wrap: nowrap;
+
+        }
+
+        #sidebar.close {
+            padding: 5px;
+            width: 60px;
+        }
+
+        #sidebar ul {
+            list-style: none;
+        }
+
+        #sidebar >ul >li:first-child {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+            .logo {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+        }
+
+        #sidebar ul li.active a {
+            background-color: rgb(248, 245, 245);
+            
+            svg {
+                fill: #5e63ff;
+            }
+        }
+
+        #sidebar a, #sidebar .logo {
+            border-radius: 5em;
+            padding: .85em;
+            text-decoration: none;
+            color: #2463EB;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            
+        }
+
+
+        #sidebar svg {
+            flex-shrink: 0;
+            fill: #2463EB;
+        }
+
+        #sidebar a span {
+            flex-grow: 1;
+        }
+
+        #sidebar a:hover {
+            background-color: rgb(248, 245, 245);
+        }
+
+        #toggle-btn {
+            margin-left: auto;
+            padding: 1em;
+            border: none;
+            border-radius: .5em;
+            background: none;
+            cursor: pointer;
+        
+        }
+
+        #toggle-btn svg {
+            transition: transform 150ms ease;
+
+        }
+
+        #toggle-btn.rotate svg {
+            transform: rotate(-90deg);
+        }
+
+        #toggle-btn:hover {
+            background-color: rgb(248, 245, 245);
+        }
+
+        main {
+            background-color: whitesmoke;
+            width: 100%;
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 1em;
+        }
+
+
+        .grid-container {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+        }
+
+        h3 {
+            padding: 1rem;
+        }
+
+        .card span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 10vh;
+            color: black;
+            
+        }
+
+        .card p {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+        }
+
+        .card.summary p {
+            font-size: 1rem;          
+            
+        }
+
+        .card .win {
+            color: oklch(0.723 0.219 149.579);
+        }
+
+        .card .loss {
+            color: oklch(0.637 0.237 25.331);
+        }
+
+        .win-loss {
+            color: oklch(0.551 0.027 264.364);
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .win-rate {
+            color: oklch(0.551 0.027 264.364);
+            text-align: center;
+            font-size: 1rem;
+        }
+ 
+
+        @media(max-width: 500px) {
+            body {
+                width: 100%;
+            }
+
+        
+            main {
+                padding: 2em 1em 60px 1em;
+            }
+
+            .container {
+                border: none;
+                padding: 0;
+            }
+
+            #sidebar {
+                height: 60px;
+                width: 100%;
+                border-right: none;
+                border-top: 1px solid #42434a;
+                padding: 0;
+                position: fixed;
+                top: unset;
+                bottom: 0;
+                
+                > ul {
+                    padding: 0;
+                    display: grid;
+                    grid-auto-columns: 60px;
+                    grid-auto-flow: column;
+                    align-items: center;
+                    overflow-x: scroll;
+                }
+
+                ul li {
+                    height: 100%;
+                }
+
+                ul a {
+                    width: 60px;
+                    height: 60px;
+                    padding: 0;
+                    border-radius: 0;
+                    justify-content: center;
+                }
+
+                ul li span, ul li:first-child {
+                    display: none;
+                }
+
+                >div {
+                    overflow-x: auto;
+                }
+
+                li {
+                    display: inline-flex;
+                }
+
+                a {
+                    box-sizing: border-box;
+                    padding: 1em;
+                    width: auto;
+                    justify-content: center;
+                }
+            }
+
+            
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <ul>
+            <li>
+                <span class="logo">Trading Journal</span>
+                <button onclick=toggleSidebar() id="toggle-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M440-240 200-480l240-240 56 56-183 184 183 184-56 56Zm264 0L464-480l240-240 56 56-183 184 183 184-56 56Z"/></svg>
+                </button>
+            </li>
+            <li class="active">
+                <a href="{{ url_for('main.dashboard') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z"/></svg>
+                    <span>Dashboard</span>
+                </a>
+            </li> 
+            <li>
+                <a href="{{ url_for('main.trades') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="m140-220-60-60 300-300 160 160 284-320 56 56-340 384-160-160-240 240Z"/></svg>
+                    <span>Trades</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('main.journal_trade_entry') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v268q-19-9-39-15.5t-41-9.5v-243H200v560h242q3 22 9.5 42t15.5 38H200Zm0-120v40-560 243-3 280Zm80-40h163q3-21 9.5-41t14.5-39H280v80Zm0-160h244q32-30 71.5-50t84.5-27v-3H280v80Zm0-160h400v-80H280v80ZM720-40q-83 0-141.5-58.5T520-240q0-83 58.5-141.5T720-440q83 0 141.5 58.5T920-240q0 83-58.5 141.5T720-40Zm-20-80h40v-100h100v-40H740v-100h-40v100H600v40h100v100Z"/></svg>
+                    <span>Add Trade</span>
+
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('main.settings') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('main.logout')}}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+                    <span>Logout</span>
+                </a>
+            </li>
+            
+        </ul>
+  
+    </nav>
+
+ 
+    <main>
+
+        <h2>Welcome back, {{ username }}</h2>
+        
+       <div class="grid-container">
+
+            <div class="card"><h3>PnL</h3>
+                {% if total_pnl_dashboard > 0 %}
+                    <span class="win"> ${{ total_pnl_dashboard }}</span>
+                    <p class="win-loss">From {{ total_trades }} closed trades</p>
+                {% else %}
+                    <span class="loss"> ${{ total_pnl_dashboard }}</span>
+                    <p class="win-loss">From {{ total_trades }} closed trades</p>
+                {% endif %}
+                
+                
+            </div>
+
+            <div class="card">
+                <h3>Win Rate</h3>
+                {% if win_rate >= 50 %}
+                    <span class="win">{{ win_rate }}%</span>
+                    <p class="win-rate">{{ wins }}W - {{ loss }}L</p>
+                {% else %}
+                    <span class="loss">{{ win_rate }}%</span>
+                    <p class="win-rate">{{ wins }}W - {{ loss }}L</p>
+                {% endif %}
+            </div>
+            
+            <div class="card">
+                <h3>Profit Factor</h3>
+                <span>{{ profit_factor }}</span>
+            </div>
+
+            <div class="card wins_loss">
+                <h3>Wins</h3>
+                <p>Std. Dev. Winning Trade</p>
+                <span class="win">${{ std_dev_win }}</span>
+                <p>Largest Win</p>
+                <span class="win">${{ largest_win }}</span>
+            </div>
+
+            <div class="card">
+                <h3>Loss</h3>
+                <p>Std. Dev. Losing Trade</p>
+                <span class="loss">${{ std_dev_loss }}</span>
+                <p>Largest Loss</p>
+                <span class="loss">${{ largest_loss }}</span>
+            </div>
+
+            <ul class="card summary">
+                <h3>Summary</h3>
+                {% set avg_win = trading_summary.avg_win|abs %}
+                {% set avg_loss = trading_summary.avg_loss|abs %}
+
+                {% if win_rate >= 50 and avg_win < avg_loss %}
+                    <p>High win rate but unprofitable—your losses may be too large.</p>
+                {% elif win_rate < 50 and avg_win > avg_loss %}
+                    <p>Profitable with low win rate—strong risk/reward, but inconsistent execution. </p>
+                {% elif win_rate >= 50 and avg_win >= avg_loss %}
+                    <p>Consistent and profitable—strategy and execution are working well.</p>
+                {% elif win_rate < 50 and avg_win < avg_loss %}
+                    <p>Low win rate and poor risk/reward—strategy may need significant improvement.</p>
+                {% else %}
+                    <p>Insufficient data to determine performance profile.</p>
+
+       
+                {% endif %}
+            </ul>
+
+
+            <div class="card chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <div class="card chart-container">
+                <canvas id="winLossCumulative"></canvas>
+            </div>
+
+            <div class="card chart-container">
+                <canvas id="PnL"></canvas>
+            </div>
+
+            <div class="card chart-container">
+                <canvas id="stackedChart"></canvas>
+            </div>
+
+        
+        
+       </div>   
+
+       
+        
+    </main>
+
+    <script>
+        const toggleButton = document.getElementById('toggle-btn')
+        const sidebar = document.getElementById('sidebar')
+        let pnlChart;
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('close')
+            toggleButton.classList.toggle('rotate')
+        }
+
+        
+
+      
+        document.addEventListener("DOMContentLoaded", function() {
+            var data = {{ trading_summary_json|safe }};
+
+            const ctxPie = document.getElementById('pieChart');
+
+            new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                labels: ['Win', 'Loss'],
+                datasets: [{
+                    data: [data.wins, data.loss],
+                    borderWidth: 1,
+                    backgroundColor: ['oklch(0.723 0.219 149.579)', 'oklch(0.637 0.237 25.331)'],
+                hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Win Vs Loss',
+                            font: { size: 20 },
+                            color: 'rgb(36, 99, 235)'
+                            },
+                        legend: { display: false }
+                        }
+                    }
+                });
+
+
+            const ctxChart = document.getElementById('winLossCumulative');
+            new Chart(ctxChart, {
+                type: 'line',
+                data: {
+                    labels: data.exit_date_str,
+                    datasets: [
+                        {
+                        data: data.cumulative_pnl,
+                        borderWidth: 0,
+                        tension: 0.4,
+                        fill: { target: 'origin', 
+                                above: 'oklch(0.723 0.219 149.579)', 
+                                below: 'oklch(0.637 0.237 25.331)' }
+                   
+                        }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: { display: false,
+                                    drawBorder: false, 
+                                    drawOnChartArea: false },
+                            type:'time',
+                            time: {
+                                unit:'month',
+                                displayFormats: {
+                                    month:'MMM' + ' YYY'
+                                }
+                            },
+                    },
+
+                        y: { grid: { display: false, 
+                                    drawBorder: false,
+                                    drawOnChartArea: false },
+                             ticks: { callback: function(value, index, ticks) {
+                                    return '$' + value;}},
+                            beginAtZero: true
+                            }
+                    },
+                   
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Cumulative PnL',
+                            font: { size: 20 },
+                            color: 'rgb(36, 99, 235)'
+                        },
+                        legend: {display: false},
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    return ' $' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+
+                }
+            });
+
+            
+            const ctxDonut = document.getElementById("PnL");
+           
+             new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Win', 'Loss'],
+                    datasets: [{
+                        label: 'PnL',
+                        data: [data.win_pnl, data.loss_pnl],
+                        backgroundColor: ['oklch(0.723 0.219 149.579)', 'oklch(0.637 0.237 25.331)'],
+                    hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'PnL',
+                            font: { size: 20 },
+                            color: 'rgb(36, 99, 235)'
+                            },
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        return ' $' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            const ctxStacked = document.getElementById("stackedChart");
+            new Chart(ctxStacked, {
+                type: 'bar',
+                data: {
+                    labels: ['', ''],
+                    datasets: [{
+                        label:'AvgWin',
+                        data: [data.avg_win],
+                        backgroundColor: 'oklch(0.723 0.219 149.579)',
+                        borderWidth: 1,
+                        borderRadius: { topRight: 30, bottomRight: 30 },
+                        borderSkipped: false
+                        },
+                        {
+                        label: 'AvgLoss',
+                        data: [data.avg_loss],
+                        backgroundColor: 'oklch(0.637 0.237 25.331)',
+                        borderWidth: 1,
+                        borderRadius: { topLeft: 30, bottomLeft: 30 },
+                        borderSkipped: false
+                        }]
+                    },
+                options: {
+                    indexAxis: 'y',
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Avg Win/Loss',
+                            font: { size: 20 },
+                            color: 'rgb(36, 99, 235)'
+                            },
+                        legend: { display: false},
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const datasetLabel = context.dataset.label;
+                                    return datasetLabel + ': $' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true, 
+                            grid: { display: false, 
+                                    drawBorder: false, 
+                                    drawOnChartArea: false, 
+                                    drawTicks: false }, 
+                            ticks: { display:  false },
+                            border: { display: false }
+                         },
+                           
+
+                        y: { stacked: true, 
+                            grid: { display: false, 
+                                    drawBorder: false, 
+                                    drawOnChartArea: false, 
+                                    drawTicks: false }, 
+                            ticks: { display: false },
+                            border: { display: false } 
+                            
+                        }
+                            
+                    }
+                }
+            });
+
+            
+
+        });
+
+
+    </script>
+
+</body>
+</html>
