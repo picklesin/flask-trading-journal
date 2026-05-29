@@ -111,8 +111,6 @@ flask db upgrade
 flask run
 ```
 
-> **Note:** For testing, set `TESTING = True` and `MAIL_SUPPRESS_SEND = True` in `config.py`.
-
 ---
 
 ## Deployment
