@@ -1,8 +1,6 @@
 from app.models import *
 from app import db
 
-
-# josephyim@Josephs-MacBook-Air-3 real_trading_journal % pytest
     
 
 
