@@ -1,0 +1,55 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Flask / runtime
+# =========================
+instance/
+*.db
+*.sqlite3
+
+# Flask session/cache 
+flask_session/
+
+# =========================
+# Migrations (IMPORTANT FIX)
+# =========================
+migrations/__pycache__/
+migrations/**/__pycache__/
+
+# =========================
+# Testing / tooling
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# IDE / OS
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
