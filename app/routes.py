@@ -1,3 +1,4 @@
+import os
 from app.models import User, Entry, TradeEntry
 import app.forms as forms
 from datetime import date
@@ -10,6 +11,7 @@ from itsdangerous import SignatureExpired, BadSignature
 from app.func import trade_calc
 from itsdangerous import URLSafeTimedSerializer
 from app import login_manager, bcrypt, mail, db
+from google import genai
 
 main = Blueprint("main", __name__)
 
@@ -17,6 +19,10 @@ main = Blueprint("main", __name__)
 # email token
 def get_serializer():
     return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+def gemini_key():
+     gemini_key = current_app.config['GEMINI_API_KEY']
+     return gemini_key
 
 
 login_manager.login_view = "login"
@@ -262,6 +268,167 @@ def edit_trades(id):
             
     
     return render_template('edit_trade.html', trade=trade, form=form, page=page, q=q)
+
+
+# review trade using AI
+@main.route('/trade/review/<int:id>', methods=['GET', 'POST'])
+@login_required
+def review_trade(id):
+    trades = db.session.get(TradeEntry, id)
+    gemini_api_key = gemini_key()
+
+    client = genai.Client(api_key=gemini_api_key)
+
+    # making data readable for gemini
+    trade_data = {"symbol": trades.stock_sym,
+                  "entry_date": trades.entry_date,
+                  "exit_date": trades.exit_date,
+                  "qty": round(trades.qty,2),
+                  "entry_price": trades.price_entry,
+                  "exit_price": trades.price_exit,
+                  "journal": trades.entry_journal,
+                  "status": trades.status}
+
+        
+
+    # prompt for gemini to review each trade for user
+    prompts = f"""
+            Instruction:
+                You are a strict trade journal auditor. Do NOT assume missing data. 
+                Do NOT invent market context. If something is not provided, write “Not provided.
+
+            Trade Data:
+                {trade_data}
+
+            Output Formatting Rules:
+                Each section must be spaced out clearly (no dense paragraphs).
+                Use bullet points where appropriate.
+                Do not merge multiple topics into a single paragraph.
+                Keep sections visually separated.
+            Missing Data Handling Rules:
+                If a single field is missing, simply omit it from the output.
+                Do NOT write “Not provided,” “Unknown,” or “Not available.”
+                Only include information that exists in the input data.
+
+                If too many key fields are missing and analysis becomes unreliable, output:
+
+                “Insufficient data to produce a meaningful trade review.”
+
+            VALIDATION RULE:
+                If any of the following are missing:
+                    entry plan
+                    stop-loss
+                    take-profit
+
+                Then:
+                    Do not assign performance or execution scores
+                    Instead label trade as: “Non-valid strategy sample”
+
+            OUTPUT FORMAT:
+                
+                1. TRADE SUMMARY
+                    Instrument:
+                    Direction:
+                    Entry:
+                    Exit:
+                    Size:
+                    Duration:
+                    P&L: Calculate pnl based off of data given.
+                2. RISK REVIEW
+                    Stop-loss provided? (Yes/No)
+                    Take-profit provided? (Yes/No)
+                    Risk-to-reward:
+                    Risk quality verdict: (Clear / Unclear / Invalid / Not measurable)
+                3. EXECUTION REVIEW
+                    Plan available: No
+                    Execution quality: Not measurable
+                    Notes: Insufficient execution detail provided for analysis
+                4. SETUP CLARIFICATION
+                    Setup type (only if explicitly known):
+                    Otherwise: “Unconfirmed”
+                5. EFFICIENCY CHECK
+                    Status: Not measurable
+                    Reason: Missing risk definition (stop-loss and take-profit not provided)
+                6. STRATEGY VALIDITY
+                    Status: Non-valid strategy sample
+                    Reason: Missing predefined entry, stop-loss, and take-profit rules
+                7. KEY ISSUES
+                    Bullet points only
+                    No opinions, only observations
+                8. ACTIONALBLE IMPROVEMENT(max 3 points)
+                    Only based on actual weaknesses found above
+
+
+    """
+
+    prompt = f"""
+            You are a strict trade journal auditor. Analyze only what is explicitly provided in the trade data below. Do not assume, infer, or invent any information.
+
+            TRADE DATA:
+            {trade_data}
+
+            RULES:
+            - Omit any field where data is not provided. Do not write "N/A", "Unknown", or "Not provided".
+            - If too many key fields are missing, output only: "Insufficient data to produce a meaningful trade review."
+            - If entry plan, stop-loss, or take-profit are missing, do not assign performance or execution scores. Label the trade as "Non-valid strategy sample" in Section 6.
+            - Use bullet points where appropriate. Keep sections visually separated. Do not write dense paragraphs.
+            - No opinions — only observations based on the data given.
+
+            OUTPUT FORMAT:
+
+            1. TRADE SUMMARY
+            - Instrument:
+            - Direction:
+            - Entry:
+            - Exit:
+            - Size:
+            - Duration:
+            - P&L: (calculate from data provided)
+
+            2. RISK REVIEW
+            - Stop-loss provided: (Yes / No)
+            - Take-profit provided: (Yes / No)
+            - Risk-to-reward:
+            - Risk quality verdict: (Clear / Unclear / Invalid / Not measurable)
+
+            3. EXECUTION REVIEW
+            - Plan available: (Yes / No)
+            - Execution quality: (only if plan is available, otherwise: Not measurable)
+            - Notes: (only if there is something specific to note)
+
+            4. SETUP CLARIFICATION
+            - Setup type: (only if explicitly stated in trade data, otherwise: Unconfirmed)
+
+            5. EFFICIENCY CHECK
+            - Status: (only if stop-loss and take-profit are present, otherwise: Not measurable)
+            - Reason: (brief explanation if not measurable)
+
+            6. STRATEGY VALIDITY
+            - Status: (Valid / Non-valid strategy sample)
+            - Reason: (brief explanation)
+
+            7. KEY ISSUES
+            - Bullet points only, observations only
+
+            8. ACTIONABLE IMPROVEMENTS (max 3)
+            - Only based on actual weaknesses identified above
+            """
+
+    response = client.models.generate_content_stream(
+        model = "gemini-2.5-flash",
+        contents = prompt
+    )
+
+    trade_response = ""
+
+    for words in response:
+        if words.text:
+            trade_response += words.text
+
+    trade_response = trade_response.replace("\n", "<br>")
+
+
+    return render_template('trade_review.html', trade_response=trade_response)
 
 
 # delete a trade
