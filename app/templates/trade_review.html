@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Review</title>
+
+    <style>
+
+        * {
+            padding: 0;
+            margin: 0;
+            font-family: 'Roboto', sans-serif; 
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .review-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 500px;
+            box-sizing: border-box;
+            overflow: auto;
+            max-height: 85vh;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+        }
+
+        p {
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+        }
+
+        .back-btn {
+            
+            display: block;
+            color: black;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 2px;
+            padding: 8px;
+            background-color: white;
+            border: 1px solid;
+            border-radius: 5px;
+            margin-top: 1.5rem;
+        }
+
+        .back-btn:hover{
+            background-color: rgb(232, 232, 232);
+        }
+
+
+    </style>
+
+
+</head>
+
+<body>
+
+    <div class="review-card">
+        <h2>Trade Review</h2>
+        <p>{{ trade_response | safe }}</p>
+        <a class="back-btn" href="{{ url_for('main.trades')}}">Back</a>
+    </div>
+
+    
+</body>
+</html>
