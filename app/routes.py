@@ -266,7 +266,7 @@ def edit_trades(id):
     return render_template('edit_trade.html', trade=trade, form=form, page=page, q=q)
 
 
-# review trade using AI
+# review a users trade using gemini AI
 @main.route('/trade/review/<int:id>', methods=['GET', 'POST'])
 @login_required
 def review_trade(id):
