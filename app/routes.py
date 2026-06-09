@@ -286,7 +286,6 @@ def review_trade(id):
                   "status": trades.status}
 
         
-
     # prompt for gemini to review each trade for user
     prompt = f"""
             You are a strict trade journal auditor. Analyze only what is explicitly provided in the trade data below. Do not assume, infer, or invent any information.
@@ -352,6 +351,7 @@ def review_trade(id):
         if words.text:
             trade_response += words.text
 
+    # cleaning response for readability 
     trade_response = trade_response.replace("\n", "<br>")
 
 
