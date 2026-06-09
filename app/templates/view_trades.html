@@ -299,8 +299,21 @@
             background-color: #5281e6;
         }
 
+        .trade-review {
+            top: 50%;
+            left: 50%;
+            color: #2463EB;
+            text-decoration: none;
+            border: 1px solid;
+            border-radius: 5px;
+            padding: 0.3rem;
+            }
 
+        .trade-review:hover {
+            background-color: rgb(232, 232, 232);
+        }
 
+   
         @media(max-width: 500px) {
 
             table {
@@ -361,6 +374,7 @@
                 margin: 0;
                 margin-bottom: 0.5rem;
             }
+
 
 
             #sidebar {
@@ -475,10 +489,7 @@
             <div class="messages">{{ message }}</div>
         {% endfor %}
 
-        <!-- <div>
-            <input type="text" class="input" placeholder="Search" name="q" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results" hx-indicator=".htmx-indicator"/>  
-        </div> -->
-        
+            
         <form class="search-card" method="GET" action="{{ url_for('main.trades') }}">
             <input class="search-text" type="text" name="q" placeholder=" Search" value="{{ q }}">
             <button class="search-btn" type="submit">Search</button>
@@ -493,6 +504,7 @@
                     <th class="sortable">Entry</th>
                     <th class="sortable">Exit</th>
                     <th class="sortable">PnL</th>
+                    <th>Trade Review</th>
                     <th>Status</th>
                     <th>Action</th>
                     
@@ -524,8 +536,7 @@
                         {% endif %}
                     </td>
 
-                    <!-- <td data-label="Qty">{{ entry.qty|int }}</td> -->
-
+                                       
                     <td data-label="PnL">
                         {% if entry.exit_date and entry.price_exit %}
 
@@ -566,6 +577,10 @@
                         {% else %}
                         <span>-</span>
                         {% endif %}
+                    </td>
+
+                    <td>
+                        <a class="trade-review" href="{{ url_for('main.review_trade', id=entry.id) }}">Review</a>
                     </td>
 
                     
@@ -658,8 +673,11 @@
     </main>
 
     <script>
+        
         const toggleButton = document.getElementById('toggle-btn')
         const sidebar = document.getElementById('sidebar')
+
+        
 
         function toggleSidebar() {
             sidebar.classList.toggle('close')
