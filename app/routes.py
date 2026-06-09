@@ -467,7 +467,7 @@ def password_reset():
 
                 msg = Message(
                 subject='Email Reset',
-                sender='add email',
+                sender='company email',
                 recipients=[user.email],
                 body=f'Please click the link below to reset your password \n{link}' 
                 )
