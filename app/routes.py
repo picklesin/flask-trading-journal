@@ -281,9 +281,9 @@ def edit_trades(id):
 
 # review a users trade using gemini AI
 @main.route('/trade/review/<int:id>', methods=['GET', 'POST'])
+@login_required
 @limiter.limit("17 per day")
 @limiter.limit("4 per minute")
-@login_required
 def review_trade(id):
     trades = db.session.get(TradeEntry, id)
     gemini_key = current_app.config['GEMINI_API_KEY']
