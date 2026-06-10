@@ -12,9 +12,22 @@ from app.func import trade_calc
 from itsdangerous import URLSafeTimedSerializer
 from app import login_manager, bcrypt, mail, db
 from google import genai
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from dotenv import load_dotenv
+
 
 main = Blueprint("main", __name__)
 
+
+load_dotenv()
+
+# limiter request for gemini api
+# storage_uri, can be commented out for local usage
+limiter = Limiter(
+    get_remote_address,
+    storage_uri= os.getenv("REDIS_URL")
+)
 
 # email token
 def get_serializer():
@@ -27,7 +40,7 @@ def login_manager(user_id):
 
     return db.session.get(User, int(user_id))
 
-# cache Control
+# cache control
 @main.after_request
 def add_cache_headers(response):
     response.headers["Cache-Control"] = "no-store"
@@ -92,7 +105,7 @@ def confirm_email(token):
     return redirect(url_for('main.login'))
 
 
-# login Page
+# login page
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
@@ -268,10 +281,13 @@ def edit_trades(id):
 
 # review a users trade using gemini AI
 @main.route('/trade/review/<int:id>', methods=['GET', 'POST'])
+@limiter.limit("17 per day")
+@limiter.limit("4 per minute")
 @login_required
 def review_trade(id):
     trades = db.session.get(TradeEntry, id)
     gemini_key = current_app.config['GEMINI_API_KEY']
+    
 
     client = genai.Client(api_key=gemini_key)
 
@@ -285,7 +301,9 @@ def review_trade(id):
                   "journal": trades.entry_journal,
                   "status": trades.status}
 
-        
+    
+
+
     # prompt for gemini to review each trade for user
     prompt = f"""
             You are a strict trade journal auditor. Analyze only what is explicitly provided in the trade data below. Do not assume, infer, or invent any information.
@@ -340,10 +358,14 @@ def review_trade(id):
             - Only based on actual weaknesses identified above
             """
 
+
+ 
     response = client.models.generate_content_stream(
         model = "gemini-2.5-flash",
         contents = prompt
     )
+
+
 
     trade_response = ""
 
