@@ -10,7 +10,7 @@ A full stack web application built with Flask that helps traders track, review, 
 
 ## Features
 
-- AI-powered trade review using Gemini API with structured analysis and prompt validation
+- AI-powered trade review using Gemini API with structured analysis, prompt validation, and rate limiting
 - User registration and authentication with email verification
 - Secure password hashing with Flask-Bcrypt
 - Login session management with Flask-Login
@@ -34,6 +34,8 @@ A full stack web application built with Flask that helps traders track, review, 
 - Flask-Bcrypt
 - Flask-Migrate
 - Flask-Mail
+- Flask-Limiter
+- Redis
 
 ### Database
 - PostgreSQL (production)
