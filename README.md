@@ -2,6 +2,9 @@
 
 **Live Demo:** [trading-journal-btms.onrender.com](https://flask-trading-journal-1.onrender.com)
 
+user:admin1
+password:password
+
 ## Overview
 
 A full stack web application built with Flask that helps traders track, review, and analyze their trades in one place. The application includes secure authentication, trade logging, performance tracking, and an interactive dashboard to help users improve trading discipline and decision-making.
