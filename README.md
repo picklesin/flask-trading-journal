@@ -3,6 +3,7 @@
 **Live Demo:** [trading-journal-btms.onrender.com](https://flask-trading-journal-1.onrender.com)
 
 user:admin1
+
 password:password
 
 ## Overview
