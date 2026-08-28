@@ -60,7 +60,7 @@ A full stack web application built with Flask that helps traders track, review, 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/picklesin/trading-journal.git
+git clone https://github.com/picklesin/flask-trading-journal.git
 cd trading-journal
 ```
 

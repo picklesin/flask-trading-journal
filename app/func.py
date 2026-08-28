@@ -50,9 +50,7 @@ def trade_calc(trades):
             if prev_day is None:
                 trading_summary['cumulative_pnl'].append(total_pnl_charts)
                 trading_summary['exit_date'].append(curr_date)
- 
-                #same_cumulative_pnl = trade_pnl
-                
+              
             
             elif curr_date == prev_day:               
                 same_cumulative_pnl += trade_pnl
@@ -60,8 +58,7 @@ def trade_calc(trades):
             else:
                 total_pnl_charts += same_cumulative_pnl
                 trading_summary['cumulative_pnl'].append(total_pnl_charts)       
-
-                #trading_summary['cumulative_pnl'].append(total_pnl_charts)       
+     
                 trading_summary["exit_date"].append(t.exit_date)
                 same_cumulative_pnl = 0
             
