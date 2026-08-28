@@ -61,7 +61,7 @@ A full stack web application built with Flask that helps traders track, review, 
 
 ```bash
 git clone https://github.com/picklesin/flask-trading-journal.git
-cd trading-journal
+cd flask-trading-journal
 ```
 
 ### 2. Create a Virtual Environment
