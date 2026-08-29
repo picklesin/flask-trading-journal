@@ -148,13 +148,17 @@
 </head>
 <body>
 
-
-
-
     <div class="container">
     <div class="title">Add a New Trade</div>
 
+    <div class="messages">
+        {% for field in form %}
+            {% for error in field.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}   
+        {% endfor %}
 
+    </div>
         <form method="POST" action="">
             <div class="user-details">
                 {{ form.hidden_tag() }}
@@ -205,7 +209,6 @@
                 {% endfor %}
                 </div>
 
-                    
                 <div class="button">
                     {{ form.submit() }}
                     <a class="cancel-button" href="{{ url_for('main.dashboard') }}">Cancel</a>
