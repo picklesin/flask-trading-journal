@@ -28,7 +28,7 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov
-          tests/pytest test_trading_journal.py \
+          pytest tests/test_trading_journal.py \
           --doctest-modules \
           --junitxml=junit/test-results.xml \
           --cov=app \
