@@ -1,14 +1,14 @@
 import pytest 
 from app import create_app, db, bcrypt
+from app.config import TestConfig
 from app.models import *
 from datetime import date
 
 
 @pytest.fixture()
 def app():
-    app = create_app()
+    app = create_app(TestConfig)
     app.config.update({
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "WTF_CSRF_ENABLED": False
     })
 
@@ -17,7 +17,6 @@ def app():
         yield app
         db.drop_all()
      
-
 
 @pytest.fixture()
 def client(app):
@@ -66,3 +65,4 @@ def entries(app, user):
         db.session.commit()
 
     return posts
+

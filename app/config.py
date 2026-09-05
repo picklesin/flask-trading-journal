@@ -17,12 +17,14 @@ class Config:
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "False") == "True"
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER")
   
-    # gemini api key
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    # Gemini Api Key
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 
 class TestConfig(Config):
     TESTING = True
     MAIL_SUPPRESS_SEND = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 class DevelopmentConfig(Config):
     DEBUG = True
