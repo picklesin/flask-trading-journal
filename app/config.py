@@ -25,6 +25,7 @@ class TestConfig(Config):
     TESTING = True
     MAIL_SUPPRESS_SEND = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SECRET_KEY = "thisisscretkey"
 
 class DevelopmentConfig(Config):
     DEBUG = True
